@@ -11,7 +11,9 @@ import {
     faInfoCircle,
     faHeadset,
     faShoppingBag,
-    faGift
+    faGift,
+    faHeartbeat
+    
 } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
@@ -44,6 +46,11 @@ const HeaderCom = () => {
             path: "/support",
             icon: faHeadset
         },
+        {
+            title: "Wishlist",
+            path: "/wishlist",
+            icon: faHeartbeat
+        },
     ];
 
     return (
@@ -55,11 +62,11 @@ const HeaderCom = () => {
                     <span className="text-white font-medium text-xs whitespace-nowrap truncate">
                         Summer Sale: 50% Off Swimsuits + Free Delivery!
                     </span>
-                    <a href="/shop" className="ml-1 flex-shrink-0">
+                    <Link to="/shop" className="ml-1 flex-shrink-0">
                         <span className="text-white font-medium text-xs underline hover:text-yellow-300 duration-300">
                             Shop Now
                         </span>
-                    </a>
+                    </Link>
                 </div>
             </div>
 
@@ -68,11 +75,11 @@ const HeaderCom = () => {
                     <div className="flex items-center justify-between gap-3">
                         {/* Logo */}
                         <div className="flex-shrink-0">
-                            <a href="/" className="flex items-center space-x-1 group">
+                            <Link to="/" className="flex items-center space-x-1 group">
                                 <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
                                     WishBox
                                 </span>
-                            </a>
+                            </Link>
                         </div>
 
                         {/* Desktop Navigation - Center */}
@@ -92,7 +99,7 @@ const HeaderCom = () => {
                         {/* Icons - Right */}
                         <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
                             {/* Shop Icon for mobile and tablet - replaces profile and home */}
-                            <Link to={"/shop"}
+                            <Link to="/shop"
                                 className="md:hidden p-1.5 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faShoppingBag} className="text-lg" />
@@ -100,7 +107,7 @@ const HeaderCom = () => {
 
                             {/* Action Icons - hidden on mobile, visible on desktop */}
                             <div className="hidden md:flex items-center space-x-1 sm:space-x-2">
-                                <Link to={"/login"}
+                                <Link to="/login"
                                     className="p-1.5 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-all duration-300 group relative"
                                 >
                                     <FontAwesomeIcon icon={faUser} className="text-base group-hover:scale-110 transition-transform duration-300" />
@@ -109,7 +116,7 @@ const HeaderCom = () => {
                                     </span>
                                 </Link>
 
-                                <Link to={"/wishlist"}
+                                <Link to="/wishlist"
                                     className="p-1.5 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300 group relative"
                                 >
                                     <FontAwesomeIcon icon={faHeart} className="text-base group-hover:scale-110 transition-transform duration-300" />
@@ -119,7 +126,7 @@ const HeaderCom = () => {
                                 </Link>
 
                                 {/* Shopping Cart */}
-                                <Link to={"/cart"}
+                                <Link to="/cart"
                                     className="p-1.5 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-full transition-all duration-300 group relative"
                                 >
                                     <FontAwesomeIcon icon={faShoppingCart} className="text-base group-hover:scale-110 transition-transform duration-300" />
@@ -130,7 +137,7 @@ const HeaderCom = () => {
                             </div>
 
                             {/* Shopping Cart - visible on mobile and tablet */}
-                            <Link to={"/cart"} className="md:hidden p-1.5 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-full transition-all duration-300 group relative"
+                            <Link to="/cart" className="md:hidden p-1.5 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-full transition-all duration-300 group relative"
                             >
                                 <FontAwesomeIcon icon={faShoppingCart} className="text-base" />
                                 <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
@@ -155,7 +162,11 @@ const HeaderCom = () => {
                         <div className="lg:hidden mt-3 bg-white border border-gray-200 rounded-lg shadow-sm py-2">
                             <nav className="flex flex-col space-y-1">
                                 {LinkData.map((item, index) => (
-                                    <Link to={item.path} key={index} className="group flex items-center space-x-1 text-gray-700 hover:text-purple-600 transition-colors duration-300 relative"
+                                    <Link
+                                        to={item.path}
+                                        key={index}
+                                        className="group flex items-center space-x-1 text-gray-700 hover:text-purple-600 transition-colors duration-300 relative px-4 py-2"
+                                        onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         <FontAwesomeIcon icon={item.icon} className="text-xs group-hover:scale-110 transition-transform duration-300" />
                                         <span className="font-medium text-sm">{item.title}</span>

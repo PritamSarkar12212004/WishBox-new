@@ -12,12 +12,15 @@ import {
     faPaperPlane,
     faUser,
     faEnvelope,
-    faMessage
+    faMessage,
+    faBars,
+    faTimes
 } from '@fortawesome/free-solid-svg-icons'
 
 function SupportPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('all')
+    const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
 
     const categories = [
         { id: 'all', name: 'All Topics', icon: faQuestionCircle },
@@ -81,52 +84,45 @@ function SupportPage() {
 
     return (
         <div className='flex-1'>
-            {/* Hero Section */}
-            <div className='mb-12'>
-                <div className='bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 md:p-12 text-white text-center'>
-                    <div className='max-w-4xl mx-auto'>
-                        <FontAwesomeIcon icon={faHeadset} className='text-5xl mb-6' />
-                        <h1 className='text-4xl md:text-5xl font-bold mb-4'>Support Center</h1>
-                        <p className='text-purple-100 text-lg md:text-xl mb-8'>
-                            We're here to help! Find answers to common questions or get in touch with our support team.
-                        </p>
-                        
-                        {/* Search Bar */}
-                        <div className='max-w-2xl mx-auto relative'>
-                            <input
-                                type='text'
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder='Search for help...'
-                                className='w-full px-6 py-4 pr-12 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-900'
-                            />
-                            <FontAwesomeIcon 
-                                icon={faSearch} 
-                                className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400'
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
+     
 
-            <div className='grid grid-cols-1 lg:grid-cols-4 gap-8'>
+            <div className='grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8'>
+                {/* Mobile Category Toggle */}
+                <div className='lg:hidden'>
+                    <button 
+                        onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                        className='w-full flex items-center justify-between bg-white rounded-xl shadow-lg p-4'
+                    >
+                        <span className='font-medium text-gray-900'>
+                            {categories.find(c => c.id === selectedCategory)?.name || 'Browse Categories'}
+                        </span>
+                        <FontAwesomeIcon 
+                            icon={isCategoryMenuOpen ? faTimes : faBars} 
+                            className='text-gray-600'
+                        />
+                    </button>
+                </div>
+
                 {/* Categories Sidebar */}
-                <div className='lg:col-span-1'>
-                    <div className='bg-white rounded-2xl shadow-lg p-6 sticky top-24'>
-                        <h3 className='text-lg font-semibold text-gray-900 mb-4'>Browse by Category</h3>
-                        <div className='space-y-2'>
+                <div className={`lg:col-span-1 ${isCategoryMenuOpen ? 'block' : 'hidden'} lg:block`}>
+                    <div className='bg-white rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-6 lg:sticky lg:top-24'>
+                        <h3 className='text-lg font-semibold text-gray-900 mb-3 md:mb-4 hidden lg:block'>Browse by Category</h3>
+                        <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-2 lg:gap-2'>
                             {categories.map((category) => (
                                 <button
                                     key={category.id}
-                                    onClick={() => setSelectedCategory(category.id)}
-                                    className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 ${
+                                    onClick={() => {
+                                        setSelectedCategory(category.id)
+                                        setIsCategoryMenuOpen(false)
+                                    }}
+                                    className={`flex items-center space-x-2 lg:space-x-3 p-2 lg:p-3 rounded-lg transition-colors duration-200 ${
                                         selectedCategory === category.id
                                             ? 'bg-purple-100 text-purple-700'
                                             : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                                 >
-                                    <FontAwesomeIcon icon={category.icon} className='text-sm' />
-                                    <span className='font-medium'>{category.name}</span>
+                                    <FontAwesomeIcon icon={category.icon} className='text-xs md:text-sm' />
+                                    <span className='font-medium text-sm lg:text-base'>{category.name}</span>
                                 </button>
                             ))}
                         </div>
@@ -135,28 +131,28 @@ function SupportPage() {
 
                 {/* FAQ Content */}
                 <div className='lg:col-span-3'>
-                    <div className='bg-white rounded-2xl shadow-lg p-6 md:p-8'>
-                        <div className='flex items-center justify-between mb-6'>
-                            <h2 className='text-2xl font-bold text-gray-900'>
+                    <div className='bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8'>
+                        <div className='flex items-center justify-between mb-4 md:mb-6'>
+                            <h2 className='text-xl md:text-2xl font-bold text-gray-900'>
                                 {selectedCategory === 'all' ? 'All Questions' : categories.find(c => c.id === selectedCategory)?.name}
                             </h2>
-                            <span className='bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium'>
+                            <span className='bg-purple-100 text-purple-700 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium'>
                                 {filteredFAQs.length} results
                             </span>
                         </div>
 
                         {filteredFAQs.length === 0 ? (
-                            <div className='text-center py-12'>
-                                <FontAwesomeIcon icon={faSearch} className='text-gray-300 text-4xl mb-4' />
+                            <div className='text-center py-8 md:py-12'>
+                                <FontAwesomeIcon icon={faSearch} className='text-gray-300 text-3xl md:text-4xl mb-3 md:mb-4' />
                                 <h3 className='text-lg font-semibold text-gray-900 mb-2'>No results found</h3>
                                 <p className='text-gray-600'>Try adjusting your search or browse by category.</p>
                             </div>
                         ) : (
-                            <div className='space-y-4'>
+                            <div className='space-y-3 md:space-y-4'>
                                 {filteredFAQs.map((faq, index) => (
-                                    <div key={index} className='border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200'>
-                                        <h3 className='text-lg font-semibold text-gray-900 mb-3'>{faq.question}</h3>
-                                        <p className='text-gray-600 leading-relaxed'>{faq.answer}</p>
+                                    <div key={index} className='border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow duration-200'>
+                                        <h3 className='text-base md:text-lg font-semibold text-gray-900 mb-2 md:mb-3'>{faq.question}</h3>
+                                        <p className='text-gray-600 leading-relaxed text-sm md:text-base'>{faq.answer}</p>
                                     </div>
                                 ))}
                             </div>
@@ -164,30 +160,30 @@ function SupportPage() {
                     </div>
 
                     {/* Contact Support */}
-                    <div className='mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 md:p-8'>
-                        <div className='text-center mb-6'>
-                            <h2 className='text-2xl font-bold text-gray-900 mb-2'>Still need help?</h2>
-                            <p className='text-gray-600'>Can't find what you're looking for? Our support team is here to help!</p>
+                    <div className='mt-6 md:mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8'>
+                        <div className='text-center mb-4 md:mb-6'>
+                            <h2 className='text-xl md:text-2xl font-bold text-gray-900 mb-2'>Still need help?</h2>
+                            <p className='text-gray-600 text-sm md:text-base'>Can't find what you're looking for? Our support team is here to help!</p>
                         </div>
                         
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                            <div className='bg-white rounded-lg p-6 text-center'>
-                                <FontAwesomeIcon icon={faEnvelope} className='text-purple-600 text-2xl mb-3' />
-                                <h3 className='font-semibold text-gray-900 mb-2'>Email Support</h3>
-                                <p className='text-gray-600 text-sm mb-4'>Get help via email within 24 hours</p>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6'>
+                            <div className='bg-white rounded-lg p-4 md:p-6 text-center'>
+                                <FontAwesomeIcon icon={faEnvelope} className='text-purple-600 text-xl md:text-2xl mb-2 md:mb-3' />
+                                <h3 className='font-semibold text-gray-900 mb-1 md:mb-2 text-base md:text-lg'>Email Support</h3>
+                                <p className='text-gray-600 text-xs md:text-sm mb-3 md:mb-4'>Get help via email within 24 hours</p>
                                 <a 
                                     href='mailto:support@wishbox.com'
-                                    className='inline-block bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors duration-200'
+                                    className='inline-block bg-purple-600 text-white px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium hover:bg-purple-700 transition-colors duration-200'
                                 >
                                     Email Us
                                 </a>
                             </div>
                             
-                            <div className='bg-white rounded-lg p-6 text-center'>
-                                <FontAwesomeIcon icon={faMessage} className='text-pink-600 text-2xl mb-3' />
-                                <h3 className='font-semibold text-gray-900 mb-2'>Live Chat</h3>
-                                <p className='text-gray-600 text-sm mb-4'>Chat with us in real-time</p>
-                                <button className='inline-block bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-pink-700 transition-colors duration-200'>
+                            <div className='bg-white rounded-lg p-4 md:p-6 text-center'>
+                                <FontAwesomeIcon icon={faMessage} className='text-pink-600 text-xl md:text-2xl mb-2 md:mb-3' />
+                                <h3 className='font-semibold text-gray-900 mb-1 md:mb-2 text-base md:text-lg'>Live Chat</h3>
+                                <p className='text-gray-600 text-xs md:text-sm mb-3 md:mb-4'>Chat with us in real-time</p>
+                                <button className='inline-block bg-pink-600 text-white px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium hover:bg-pink-700 transition-colors duration-200'>
                                     Start Chat
                                 </button>
                             </div>
@@ -195,29 +191,29 @@ function SupportPage() {
                     </div>
 
                     {/* Quick Links */}
-                    <div className='mt-8 bg-white rounded-2xl shadow-lg p-6 md:p-8'>
-                        <h2 className='text-2xl font-bold text-gray-900 mb-6'>Quick Links</h2>
-                        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                    <div className='mt-6 md:mt-8 bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8'>
+                        <h2 className='text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6'>Quick Links</h2>
+                        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6'>
                             <div className='text-center'>
-                                <div className='bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3'>
-                                    <FontAwesomeIcon icon={faShippingFast} className='text-purple-600' />
+                                <div className='bg-purple-100 w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3'>
+                                    <FontAwesomeIcon icon={faShippingFast} className='text-purple-600 text-sm md:text-base' />
                                 </div>
-                                <h3 className='font-semibold text-gray-900 mb-1'>Track Order</h3>
-                                <p className='text-gray-600 text-sm'>Check your order status</p>
+                                <h3 className='font-semibold text-gray-900 mb-1 text-sm md:text-base'>Track Order</h3>
+                                <p className='text-gray-600 text-xs md:text-sm'>Check your order status</p>
                             </div>
                             <div className='text-center'>
-                                <div className='bg-pink-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3'>
-                                    <FontAwesomeIcon icon={faUndo} className='text-pink-600' />
+                                <div className='bg-pink-100 w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3'>
+                                    <FontAwesomeIcon icon={faUndo} className='text-pink-600 text-sm md:text-base' />
                                 </div>
-                                <h3 className='font-semibold text-gray-900 mb-1'>Start Return</h3>
-                                <p className='text-gray-600 text-sm'>Begin return process</p>
+                                <h3 className='font-semibold text-gray-900 mb-1 text-sm md:text-base'>Start Return</h3>
+                                <p className='text-gray-600 text-xs md:text-sm'>Begin return process</p>
                             </div>
                             <div className='text-center'>
-                                <div className='bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3'>
-                                    <FontAwesomeIcon icon={faUser} className='text-purple-600' />
+                                <div className='bg-purple-100 w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3'>
+                                    <FontAwesomeIcon icon={faUser} className='text-purple-600 text-sm md:text-base' />
                                 </div>
-                                <h3 className='font-semibold text-gray-900 mb-1'>My Account</h3>
-                                <p className='text-gray-600 text-sm'>Manage your account</p>
+                                <h3 className='font-semibold text-gray-900 mb-1 text-sm md:text-base'>My Account</h3>
+                                <p className='text-gray-600 text-xs md:text-sm'>Manage your account</p>
                             </div>
                         </div>
                     </div>
