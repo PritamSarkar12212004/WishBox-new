@@ -58,32 +58,6 @@ function FooterCom() {
 
     return (
         <footer className='bg-gray-900 text-white'>
-            {/* Newsletter Section */}
-            <div className='bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 py-8'>
-                <div className='max-w-7xl mx-auto px-4 md:px-6 lg:px-8'>
-                    <div className='text-center'>
-                        <div className='flex items-center justify-center space-x-2 mb-4'>
-                            <FontAwesomeIcon icon={faPaperPlane} className='text-white text-2xl' />
-                            <h3 className='text-2xl md:text-3xl font-bold'>Stay in the Loop</h3>
-                        </div>
-                        <p className='text-orange-100 mb-6 max-w-2xl mx-auto'>
-                            Subscribe to our newsletter for exclusive offers, new product launches, and paper crafting tips!
-                        </p>
-                        <div className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'>
-                            <input 
-                                type='email' 
-                                placeholder='Enter your email address' 
-                                className='flex-1 px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-900'
-                            />
-                            <button className='bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300'>
-                                Subscribe
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Footer Content */}
             <div className='max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
                     

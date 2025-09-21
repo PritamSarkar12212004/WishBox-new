@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { 
-    faStar, 
-    faHeart, 
-    faShoppingCart, 
+import {
+    faStar,
+    faHeart,
+    faShoppingCart,
     faShare,
     faMinus,
     faPlus,
@@ -13,7 +13,9 @@ import {
     faHeadset,
     faGift,
     faCheck,
-    faTimes
+    faTimes,
+    faChevronLeft,
+    faChevronRight
 } from '@fortawesome/free-solid-svg-icons'
 
 function ProductViewPage() {
@@ -23,6 +25,19 @@ function ProductViewPage() {
     const [selectedColor, setSelectedColor] = useState('white')
     const [isWishlisted, setIsWishlisted] = useState(false)
     const [activeTab, setActiveTab] = useState('description')
+    const [isMobile, setIsMobile] = useState(false)
+
+    // Check screen size on component mount and resize
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsMobile(window.innerWidth < 1024)
+        }
+
+        checkScreenSize()
+        window.addEventListener('resize', checkScreenSize)
+
+        return () => window.removeEventListener('resize', checkScreenSize)
+    }, [])
 
     const product = {
         id: 1,
@@ -107,7 +122,6 @@ function ProductViewPage() {
     ]
 
     const addToCart = () => {
-        // Add to cart logic here
         alert(`Added ${quantity} ${product.name} to cart!`)
     }
 
@@ -123,42 +137,98 @@ function ProductViewPage() {
         { id: 'reviews', name: 'Reviews', content: reviews }
     ]
 
+    const nextImage = () => {
+        setSelectedImage((prev) => (prev + 1) % product.images.length)
+    }
+
+    const prevImage = () => {
+        setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)
+    }
+
     return (
         <div className='flex-1'>
-            {/* Breadcrumb */}
-            <div className='mb-6'>
-                <nav className='flex items-center space-x-2 text-sm text-gray-600'>
-                    <span>Home</span>
-                    <FontAwesomeIcon icon={faTimes} className='text-xs rotate-45' />
-                    <span>Shop</span>
-                    <FontAwesomeIcon icon={faTimes} className='text-xs rotate-45' />
-                    <span>{product.category}</span>
-                    <FontAwesomeIcon icon={faTimes} className='text-xs rotate-45' />
-                    <span className='text-gray-900'>{product.name}</span>
-                </nav>
-            </div>
+            {/* Mobile-only breadcrumb */}
+            {isMobile && (
+                <div className='mb-4 py-2 overflow-x-auto px-4'>
+                    <nav className='flex items-center space-x-1 text-xs text-gray-600 whitespace-nowrap'>
+                        <span>Home</span>
+                        <FontAwesomeIcon icon={faChevronRight} className='text-xs' />
+                        <span>Shop</span>
+                        <FontAwesomeIcon icon={faChevronRight} className='text-xs' />
+                        <span>{product.category}</span>
+                        <FontAwesomeIcon icon={faChevronRight} className='text-xs' />
+                        <span className='text-gray-900 truncate'>{product.name}</span>
+                    </nav>
+                </div>
+            )}
 
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12'>
+            {/* Desktop breadcrumb */}
+            {!isMobile && (
+                <div className='mb-6 px-4'>
+                    <nav className='flex items-center space-x-2 text-sm text-gray-600'>
+                        <span>Home</span>
+                        <FontAwesomeIcon icon={faTimes} className='text-xs rotate-45' />
+                        <span>Shop</span>
+                        <FontAwesomeIcon icon={faTimes} className='text-xs rotate-45' />
+                        <span>{product.category}</span>
+                        <FontAwesomeIcon icon={faTimes} className='text-xs rotate-45' />
+                        <span className='text-gray-900'>{product.name}</span>
+                    </nav>
+                </div>
+            )}
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 '>
                 {/* Product Images */}
                 <div>
-                    <div className='bg-white rounded-2xl shadow-lg overflow-hidden mb-4'>
-                        <img 
-                            src={product.images[selectedImage]} 
+                    <div className='bg-white rounded-2xl shadow-lg overflow-hidden mb-4 relative'>
+                        <img
+                            src={product.images[selectedImage]}
                             alt={product.name}
                             className='w-full h-96 md:h-[500px] object-cover'
                         />
+
+                        {/* Mobile image navigation */}
+                        {isMobile && (
+                            <>
+                                <button
+                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 text-gray-800 w-8 h-8 rounded-full flex items-center justify-center shadow-md lg:hidden"
+                                    onClick={prevImage}
+                                >
+                                    <FontAwesomeIcon icon={faChevronLeft} className='text-sm' />
+                                </button>
+
+                                <button
+                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 text-gray-800 w-8 h-8 rounded-full flex items-center justify-center shadow-md lg:hidden"
+                                    onClick={nextImage}
+                                >
+                                    <FontAwesomeIcon icon={faChevronRight} className='text-sm' />
+                                </button>
+
+                                {/* Image indicator dots */}
+                                <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2 lg:hidden">
+                                    {product.images.map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className={`w-2 h-2 rounded-full ${selectedImage === index ? 'bg-white' : 'bg-white bg-opacity-50'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
-                    <div className='flex space-x-2'>
+
+                    {/* Thumbnail navigation - different styling for mobile */}
+                    <div className={`flex space-x-2 overflow-x-auto py-2 ${isMobile ? 'px-2 -mx-2' : ''}`}>
                         {product.images.map((image, index) => (
-                            <button 
+                            <button
                                 key={index}
                                 onClick={() => setSelectedImage(index)}
-                                className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                                    selectedImage === index ? 'border-purple-600' : 'border-gray-200'
-                                }`}
+                                className={`${isMobile ? 'w-16 h-16' : 'w-20 h-20'} rounded-lg overflow-hidden border-2 flex-shrink-0 ${selectedImage === index ? 'border-purple-600' : 'border-gray-200'
+                                    }`}
                             >
-                                <img 
-                                    src={image} 
+                                <img
+                                    src={image}
                                     alt={`${product.name} ${index + 1}`}
                                     className='w-full h-full object-cover'
                                 />
@@ -175,16 +245,16 @@ function ProductViewPage() {
                                 {product.category}
                             </span>
                         </div>
-                        
+
                         <h1 className='text-3xl font-bold text-gray-900 mb-4'>{product.name}</h1>
-                        
+
                         <div className='flex items-center space-x-4 mb-4'>
                             <div className='flex items-center space-x-1'>
                                 {[...Array(5)].map((_, i) => (
-                                    <FontAwesomeIcon 
-                                        key={i} 
-                                        icon={faStar} 
-                                        className={`text-sm ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`} 
+                                    <FontAwesomeIcon
+                                        key={i}
+                                        icon={faStar}
+                                        className={`text-sm ${i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}`}
                                     />
                                 ))}
                             </div>
@@ -207,9 +277,8 @@ function ProductViewPage() {
                                     <button
                                         key={color}
                                         onClick={() => setSelectedColor(color)}
-                                        className={`w-10 h-10 rounded-full border-2 ${
-                                            selectedColor === color ? 'border-purple-600' : 'border-gray-300'
-                                        }`}
+                                        className={`w-10 h-10 rounded-full border-2 ${selectedColor === color ? 'border-purple-600' : 'border-gray-300'
+                                            }`}
                                         style={{ backgroundColor: color }}
                                         title={color}
                                     />
@@ -217,19 +286,18 @@ function ProductViewPage() {
                             </div>
                         </div>
 
-                        {/* Size Selection */}
+                        {/* Size Selection - Horizontal scroll for mobile */}
                         <div className='mb-6'>
                             <h3 className='text-lg font-semibold text-gray-900 mb-3'>Size</h3>
-                            <div className='flex space-x-3'>
+                            <div className={`flex space-x-3 ${isMobile ? 'overflow-x-auto pb-2 -mx-1 px-1' : ''}`}>
                                 {product.sizes.map((size) => (
                                     <button
                                         key={size}
                                         onClick={() => setSelectedSize(size)}
-                                        className={`px-4 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                                            selectedSize === size 
-                                                ? 'border-purple-600 bg-purple-100 text-purple-700' 
+                                        className={`px-4 py-2 rounded-lg border-2 font-medium transition-colors duration-200 whitespace-nowrap ${selectedSize === size
+                                                ? 'border-purple-600 bg-purple-100 text-purple-700'
                                                 : 'border-gray-300 text-gray-700 hover:border-purple-300'
-                                        }`}
+                                            }`}
                                     >
                                         {size.charAt(0).toUpperCase() + size.slice(1)}
                                     </button>
@@ -241,14 +309,14 @@ function ProductViewPage() {
                         <div className='mb-6'>
                             <h3 className='text-lg font-semibold text-gray-900 mb-3'>Quantity</h3>
                             <div className='flex items-center space-x-3'>
-                                <button 
+                                <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors duration-200'
                                 >
                                     <FontAwesomeIcon icon={faMinus} className='text-sm' />
                                 </button>
                                 <span className='w-16 text-center font-semibold text-lg'>{quantity}</span>
-                                <button 
+                                <button
                                     onClick={() => setQuantity(quantity + 1)}
                                     className='w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors duration-200'
                                 >
@@ -260,27 +328,25 @@ function ProductViewPage() {
 
                         {/* Action Buttons */}
                         <div className='space-y-4 mb-6'>
-                            <button 
+                            <button
                                 onClick={addToCart}
                                 disabled={!product.inStock}
-                                className={`w-full py-4 px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${
-                                    product.inStock 
-                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:scale-105' 
+                                className={`w-full py-4 px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center space-x-2 ${product.inStock
+                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:scale-105'
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                }`}
+                                    }`}
                             >
                                 <FontAwesomeIcon icon={faShoppingCart} />
                                 <span>{product.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
                             </button>
-                            
+
                             <div className='flex space-x-3'>
-                                <button 
+                                <button
                                     onClick={addToWishlist}
-                                    className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${
-                                        isWishlisted 
-                                            ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                                    className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 ${isWishlisted
+                                            ? 'bg-red-100 text-red-600 hover:bg-red-200'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
+                                        }`}
                                 >
                                     <FontAwesomeIcon icon={faHeart} />
                                     <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
@@ -291,22 +357,22 @@ function ProductViewPage() {
                             </div>
                         </div>
 
-                        {/* Features */}
-                        <div className='space-y-3'>
-                            <div className='flex items-center space-x-3 text-sm text-gray-600'>
-                                <FontAwesomeIcon icon={faTruck} />
+                        {/* Features - Grid layout for mobile */}
+                        <div className={`${isMobile ? 'grid grid-cols-2 gap-3 text-sm' : 'space-y-3'} text-gray-600`}>
+                            <div className='flex items-center space-x-3'>
+                                <FontAwesomeIcon icon={faTruck} className={isMobile ? "text-purple-500" : ""} />
                                 <span>Free shipping on orders over $50</span>
                             </div>
-                            <div className='flex items-center space-x-3 text-sm text-gray-600'>
-                                <FontAwesomeIcon icon={faShield} />
+                            <div className='flex items-center space-x-3'>
+                                <FontAwesomeIcon icon={faShield} className={isMobile ? "text-purple-500" : ""} />
                                 <span>Secure payment</span>
                             </div>
-                            <div className='flex items-center space-x-3 text-sm text-gray-600'>
-                                <FontAwesomeIcon icon={faUndo} />
+                            <div className='flex items-center space-x-3'>
+                                <FontAwesomeIcon icon={faUndo} className={isMobile ? "text-purple-500" : ""} />
                                 <span>30-day return policy</span>
                             </div>
-                            <div className='flex items-center space-x-3 text-sm text-gray-600'>
-                                <FontAwesomeIcon icon={faGift} />
+                            <div className='flex items-center space-x-3'>
+                                <FontAwesomeIcon icon={faGift} className={isMobile ? "text-purple-500" : ""} />
                                 <span>Gift wrapping available</span>
                             </div>
                         </div>
@@ -315,18 +381,17 @@ function ProductViewPage() {
             </div>
 
             {/* Product Details Tabs */}
-            <div className='bg-white rounded-2xl shadow-lg p-6 mb-12'>
+            <div className='bg-white rounded-2xl shadow-lg p-4 mb-12 '>
                 <div className='border-b border-gray-200 mb-6'>
-                    <nav className='flex space-x-8'>
+                    <nav className={`flex ${isMobile ? 'space-x-4 overflow-x-auto -mx-1 px-1' : 'space-x-8'}`}>
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                                    activeTab === tab.id
+                                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 whitespace-nowrap ${activeTab === tab.id
                                         ? 'border-purple-600 text-purple-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700'
-                                }`}
+                                    }`}
                             >
                                 {tab.name}
                             </button>
@@ -338,7 +403,7 @@ function ProductViewPage() {
                     {activeTab === 'description' && (
                         <p className='text-gray-600'>{tabs[0].content}</p>
                     )}
-                    
+
                     {activeTab === 'features' && (
                         <ul className='space-y-2'>
                             {product.features.map((feature, index) => (
@@ -349,7 +414,7 @@ function ProductViewPage() {
                             ))}
                         </ul>
                     )}
-                    
+
                     {activeTab === 'specifications' && (
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             {Object.entries(product.specifications).map(([key, value]) => (
@@ -360,7 +425,7 @@ function ProductViewPage() {
                             ))}
                         </div>
                     )}
-                    
+
                     {activeTab === 'reviews' && (
                         <div className='space-y-6'>
                             {reviews.map((review) => (
@@ -371,10 +436,10 @@ function ProductViewPage() {
                                             <div className='flex items-center space-x-2'>
                                                 <div className='flex items-center space-x-1'>
                                                     {[...Array(5)].map((_, i) => (
-                                                        <FontAwesomeIcon 
-                                                            key={i} 
-                                                            icon={faStar} 
-                                                            className={`text-sm ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} 
+                                                        <FontAwesomeIcon
+                                                            key={i}
+                                                            icon={faStar}
+                                                            className={`text-sm ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
                                                         />
                                                     ))}
                                                 </div>
@@ -390,14 +455,14 @@ function ProductViewPage() {
                 </div>
             </div>
 
-            {/* Related Products */}
-            <div className='bg-white rounded-2xl shadow-lg p-6'>
+            {/* Related Products - Horizontal scroll for mobile */}
+            <div className='bg-white rounded-2xl shadow-lg p-6 mb-8'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-6'>Related Products</h2>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                <div className={`${isMobile ? 'flex space-x-4 overflow-x-auto pb-4 -mx-2 px-2' : 'grid grid-cols-1 md:grid-cols-3 gap-6'}`}>
                     {relatedProducts.map((product) => (
-                        <div key={product.id} className='border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200'>
-                            <img 
-                                src={product.image} 
+                        <div key={product.id} className={`border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 ${isMobile ? 'min-w-[180px] flex-shrink-0' : ''}`}>
+                            <img
+                                src={product.image}
                                 alt={product.name}
                                 className='w-full h-48 object-cover'
                             />
@@ -415,6 +480,7 @@ function ProductViewPage() {
                     ))}
                 </div>
             </div>
+      
         </div>
     )
 }
