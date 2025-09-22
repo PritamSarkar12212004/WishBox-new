@@ -9,14 +9,25 @@ import {
     faRecycle,
     faTree,
     faArrowLeft,
-    faRedo
 } from '@fortawesome/free-solid-svg-icons';
 import { userContext } from '../../utils/context/ContextProvider';
+import useOtpApi from '../../hooks/api/auth/useOtpApi';
+import useCreateProfile from '../../hooks/api/auth/useCreateProfile';
 
 function LoginPage() {
 
     // context
     const { authReloader, setauthReloader } = userContext()
+
+    // api hooks
+    const { otpApi } = useOtpApi()
+    const { profileCreate } = useCreateProfile()
+
+    const [backotp, setBackotp] = useState<null | {
+        otp: number | string,
+        status: string
+    }>(null)
+
     // State for phone number entry phase
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,83 +40,74 @@ function LoginPage() {
     const [countdown, setCountdown] = useState(0);
     const [showOtpScreen, setShowOtpScreen] = useState(false);
 
+    // New state for profile setup
+    const [showProfileSetup, setShowProfileSetup] = useState(false);
+    const [profileData, setProfileData] = useState({
+        fullName: '',
+        email: '',
+        preferences: {
+            ecoFriendly: true,
+            promotions: false,
+            newsletter: true
+        }
+    });
+    const [isProfileLoading, setIsProfileLoading] = useState(false);
+
     const inputRefs = useRef([]);
 
-    // Handle phone number submission
-    const handlePhoneSubmit = async (e) => {
+    // Existing functions remain same...
+    const handlePhoneSubmit = async (e: any) => {
         e.preventDefault();
-
-        // Validate Indian phone number (10 digits starting with 6-9)
         const indianPhoneRegex = /^[6-9]\d{9}$/;
         if (!indianPhoneRegex.test(phoneNumber)) {
             alert("Please enter a valid Indian phone number");
             return;
         }
-
         setIsLoading(true);
-
-        // Simulate API call to send OTP
-        setTimeout(() => {
-            setIsLoading(false);
-            setShowSuccess(true);
-            setTimeout(() => {
-                setShowSuccess(false);
-                setShowOtpScreen(true);
-                setCountdown(30); // 30 second countdown
-            }, 1500);
-        }, 2000);
+        otpApi({ phoneNumber: phoneNumber, setIsLoading: setIsLoading, setShowSuccess: setShowSuccess, setShowOtpScreen: setShowOtpScreen, setBackotp: setBackotp })
     };
 
     const handlePhoneChange = (e) => {
         const value = e.target.value.replace(/\D/g, '');
-        // Limit to 10 digits for Indian numbers
         if (value.length <= 10) {
             setPhoneNumber(value);
         }
     };
 
-    // Handle OTP input change
-    const handleOtpChange = (index, value) => {
-        if (!/^\d*$/.test(value)) return; // Only allow numbers
+    const handleOtpChange = (index: any, value: any) => {
+        if (!/^\d*$/.test(value)) return;
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
 
-        // Auto-focus to next input
         if (value && index < 3) {
             inputRefs.current[index + 1].focus();
         }
 
-        // Auto-submit if all fields are filled
         if (newOtp.every(digit => digit !== '') && index === 3) {
             handleOtpSubmit();
         }
     };
 
-    // Handle OTP paste
-    const handleOtpPaste = (e) => {
+    const handleOtpPaste = (e: any) => {
         e.preventDefault();
         const pasteData = e.clipboardData.getData('text').slice(0, 4);
         if (/^\d+$/.test(pasteData)) {
             const newOtp = pasteData.split('');
             setOtp(newOtp);
-
-            // Focus on the last input after pasting
             if (newOtp.length === 4) {
                 inputRefs.current[3].focus();
             }
         }
     };
 
-    // Handle OTP backspace
-    const handleOtpKeyDown = (index, e) => {
+    const handleOtpKeyDown = (index: any, e: any) => {
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
-            // Move focus to previous input on backspace
             inputRefs.current[index - 1].focus();
         }
     };
 
-    // Handle OTP submission
+    // Modified OTP submission to show profile setup
     const handleOtpSubmit = () => {
         setIsVerifying(true);
 
@@ -113,41 +115,53 @@ function LoginPage() {
         setTimeout(() => {
             setIsVerifying(false);
             const enteredOtp = otp.join('');
-            if (enteredOtp === '1234') { // For demo purposes, use 1234 as valid OTP
+            if (enteredOtp == backotp?.otp) {
                 setIsVerified(true);
+                // Show profile setup after 2 seconds instead of redirecting
+                setTimeout(() => {
+                    setShowProfileSetup(true);
+                }, 2000);
                 setauthReloader(!authReloader)
             } else {
-                setauthReloader(!authReloader)
-
                 alert("Invalid OTP. Please try again.");
                 setOtp(['', '', '', '']);
                 if (inputRefs.current[0]) {
                     inputRefs.current[0].focus();
                 }
             }
-        }, 1500);
+        }, 1000);
     };
 
-    // Handle back button to return to phone entry
     const handleBackToPhone = () => {
         setShowOtpScreen(false);
+        setShowProfileSetup(false);
         setOtp(['', '', '', '']);
         setIsVerified(false);
     };
+    // Profile setup functions
+    const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
 
-    // Handle resend OTP
-    const handleResendOtp = () => {
-        setCountdown(30);
-        setOtp(['', '', '', '']);
-        if (inputRefs.current[0]) {
-            inputRefs.current[0].focus();
+        if (name.startsWith('preferences.')) {
+            const prefName = name.split('.')[1];
+            setProfileData(prev => ({
+                ...prev,
+                preferences: {
+                    ...prev.preferences,
+                    [prefName]: checked
+                }
+            }));
+        } else {
+            setProfileData(prev => ({
+                ...prev,
+                [name]: value
+            }));
         }
-
-        // Simulate resending OTP
-        setTimeout(() => {
-            setShowSuccess(true);
-            setTimeout(() => setShowSuccess(false), 2000);
-        }, 1000);
+    };
+    const handleProfileSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsProfileLoading(true);
+        profileCreate({ phone: phoneNumber, email: profileData.email, fullName: profileData.fullName, newsletter: profileData.preferences.newsletter, product_updates: profileData.preferences.ecoFriendly, promotions: profileData.preferences.promotions, setIsProfileLoading: setIsProfileLoading })
     };
 
     // Countdown timer effect
@@ -198,7 +212,125 @@ function LoginPage() {
 
                 {/* Main Content */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-amber-100">
-                    {!showOtpScreen ? (
+                    {showProfileSetup ? (
+                        /* Profile Setup Screen */
+                        <>
+                            <button
+                                onClick={handleBackToPhone}
+                                className="flex items-center text-amber-600 hover:text-amber-700 mb-4 text-sm"
+                            >
+                                <FontAwesomeIcon icon={faArrowLeft} className="mr-1" />
+                                Back
+                            </button>
+
+                            <h2 className="text-xl font-serif font-bold text-amber-900 mb-2 text-center">
+                                Complete Your Profile
+                            </h2>
+                            <p className="text-amber-600 text-center text-sm mb-6">
+                                Help us personalize your WishBox experience
+                            </p>
+
+                            <form onSubmit={handleProfileSubmit} className="space-y-4">
+                                {/* Full Name */}
+                                <div>
+                                    <label htmlFor="fullName" className="block text-sm font-medium text-amber-800 mb-1">
+                                        Full Name *
+                                    </label>
+                                    <input
+                                        id="fullName"
+                                        name="fullName"
+                                        type="text"
+                                        required
+                                        value={profileData.fullName}
+                                        onChange={handleProfileChange}
+                                        className="w-full px-3 py-3 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                                        placeholder="Enter your full name"
+                                    />
+                                </div>
+
+                                {/* Email */}
+                                <div>
+                                    <label htmlFor="email" className="block text-sm font-medium text-amber-800 mb-1">
+                                        Email Address
+                                    </label>
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        value={profileData.email}
+                                        onChange={handleProfileChange}
+                                        className="w-full px-3 py-3 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                                        placeholder="your.email@example.com"
+                                    />
+                                </div>
+
+                                {/* Preferences */}
+                                <div className="space-y-3">
+                                    <label className="block text-sm font-medium text-amber-800 mb-2">
+                                        Preferences
+                                    </label>
+
+                                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                                        <span className="text-sm text-amber-700">Eco-friendly product updates</span>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                name="preferences.ecoFriendly"
+                                                checked={profileData.preferences.ecoFriendly}
+                                                onChange={handleProfileChange}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-amber-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-amber-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                                        <span className="text-sm text-amber-700">Special promotions & discounts</span>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                name="preferences.promotions"
+                                                checked={profileData.preferences.promotions}
+                                                onChange={handleProfileChange}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-amber-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-amber-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                                        <span className="text-sm text-amber-700">Monthly newsletter</span>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                name="preferences.newsletter"
+                                                checked={profileData.preferences.newsletter}
+                                                onChange={handleProfileChange}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-amber-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-amber-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Submit Button */}
+                                <button
+                                    type="submit"
+                                    disabled={isProfileLoading || !profileData.fullName}
+                                    className="w-full py-3 px-4 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200 mt-6"
+                                >
+                                    {isProfileLoading ? (
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                            <span>Saving Profile...</span>
+                                        </div>
+                                    ) : (
+                                        'Complete Setup & Continue'
+                                    )}
+                                </button>
+                            </form>
+                        </>
+                    ) : !showOtpScreen ? (
                         /* Phone Entry Screen */
                         <>
                             <h2 className="text-xl font-serif font-bold text-amber-900 mb-2 text-center">
@@ -208,9 +340,7 @@ function LoginPage() {
                                 Enter your WhatsApp number to explore our paper creations
                             </p>
 
-                            {/* WhatsApp Form */}
                             <form onSubmit={handlePhoneSubmit} className="space-y-4">
-                                {/* WhatsApp Number Input */}
                                 <div>
                                     <label htmlFor="phone" className="block text-sm font-medium text-amber-800 mb-1">
                                         WhatsApp Number
@@ -238,7 +368,6 @@ function LoginPage() {
                                     </p>
                                 </div>
 
-                                {/* Submit Button */}
                                 <button
                                     type="submit"
                                     disabled={isLoading || phoneNumber.length !== 10}
@@ -285,11 +414,10 @@ function LoginPage() {
                                         <FontAwesomeIcon icon={faCircleCheck} className="text-green-500 text-3xl" />
                                     </div>
                                     <h3 className="text-lg font-medium text-amber-900 mb-2">Verification Successful!</h3>
-                                    <p className="text-amber-600">You're being redirected to your account...</p>
+                                    <p className="text-amber-600">Setting up your profile...</p>
                                 </div>
                             ) : (
                                 <>
-                                    {/* OTP Input Fields */}
                                     <div className="flex justify-center space-x-3 mb-6" onPaste={handleOtpPaste}>
                                         {[0, 1, 2, 3].map((index) => (
                                             <input
@@ -306,7 +434,6 @@ function LoginPage() {
                                         ))}
                                     </div>
 
-                                    {/* Verify Button */}
                                     <button
                                         onClick={handleOtpSubmit}
                                         disabled={isVerifying || otp.some(digit => digit === '')}
@@ -321,30 +448,13 @@ function LoginPage() {
                                             'Verify OTP'
                                         )}
                                     </button>
-
-                                    {/* Resend OTP */}
-                                    <div className="text-center">
-                                        {countdown > 0 ? (
-                                            <p className="text-amber-600 text-sm">
-                                                Request new code in {countdown} seconds
-                                            </p>
-                                        ) : (
-                                            <button
-                                                onClick={handleResendOtp}
-                                                className="text-amber-600 hover:text-amber-700 text-sm inline-flex items-center focus:outline-none focus:ring-1 focus:ring-amber-500 rounded-md px-2 py-1"
-                                            >
-                                                <FontAwesomeIcon icon={faRedo} className="mr-1" />
-                                                Resend OTP
-                                            </button>
-                                        )}
-                                    </div>
                                 </>
                             )}
                         </>
                     )}
 
                     {/* Benefits Section - Only show on phone entry screen */}
-                    {!showOtpScreen && (
+                    {!showOtpScreen && !showProfileSetup && (
                         <div className="mt-6 pt-5 border-t border-amber-100">
                             <h3 className="text-xs font-semibold text-amber-900 mb-3 text-center">WHY CHOOSE WISHBOX?</h3>
                             <div className="grid grid-cols-3 gap-3 text-center">

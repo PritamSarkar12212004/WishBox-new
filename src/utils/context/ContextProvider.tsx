@@ -10,8 +10,9 @@ interface ContextinterFace {
 const Context = createContext<ContextinterFace | undefined>(undefined);
 export const ContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [data, setdata] = useState<any>()
-
+    // atth section
     const [authReloader, setauthReloader] = useState<any>(false)
+
     return (
         <Context.Provider
             value={{

@@ -86,22 +86,7 @@ function ProfilePage() {
 
     const renderProfileTab = () => (
         <div className='space-y-6'>
-            {/* Profile Header */}
-            <div className='bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 text-white text-center'>
-                <div className='relative inline-block'>
-                    <img 
-                        src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-                        alt='Profile'
-                        className='w-24 h-24 rounded-full border-4 border-white mx-auto mb-4'
-                    />
-                    <button className='absolute bottom-0 right-0 bg-white text-purple-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200'>
-                        <FontAwesomeIcon icon={faCamera} className='text-sm' />
-                    </button>
-                </div>
-                <h1 className='text-2xl font-bold mb-2'>{profileData.name}</h1>
-                <p className='text-purple-100'>{profileData.email}</p>
-            </div>
-
+         
             {/* Profile Information */}
             <div className='bg-white rounded-2xl shadow-lg p-6'>
                 <div className='flex items-center justify-between mb-6'>

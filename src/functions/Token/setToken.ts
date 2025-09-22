@@ -1,13 +1,12 @@
-const setToken = async (token: any, data: any) => {
-  const convertData: any = await JSON.stringify(data);
-  await localStorage
-    .setItem0(token, convertData)
-    .then((result: any) => {
-      return true;
-    })
-    .catch((err: any) => {
-      console.log(err);
-      return false;
-    });
+const setToken = (token: string, data: any) => {
+  try {
+    const convertData = JSON.stringify(data);
+    localStorage.setItem(token, convertData);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };
+
 export default setToken;
