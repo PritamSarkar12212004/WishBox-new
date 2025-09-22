@@ -87,21 +87,6 @@ function AboutPage() {
 
     return (
         <div className='flex-1 lg:px-8'>
-            {/* Hero Section */}
-            <div className='mb-8 md:mb-12'>
-                <div className='bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 md:p-8 lg:p-12 text-white text-center'>
-                    <div className='max-w-4xl mx-auto'>
-                        <FontAwesomeIcon icon={faHeart} className='text-4xl md:text-5xl mb-4 md:mb-6' />
-                        <h1 className='text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6'>About WishBox</h1>
-                        <p className='text-purple-100 text-base md:text-lg lg:text-xl leading-relaxed'>
-                            We're passionate about creating beautiful paper decorations that bring joy and elegance
-                            to your space. From intricate origami to stunning paper flowers, every piece is
-                            handcrafted with love and attention to detail.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
             {/* Our Story */}
             <div className='mb-8 md:mb-12'>
                 <div className='bg-white rounded-2xl shadow-lg p-6 md:p-8 lg:p-12'>

@@ -82,56 +82,11 @@ function WishlistPage() {
         const inStockItems = wishlistItems.filter(item => item.inStock)
         alert(`Added ${inStockItems.length} items to cart!`)
     }
-
-    const clearWishlist = () => {
-        if (confirm('Are you sure you want to clear your entire wishlist?')) {
-            setWishlistItems([])
-        }
-    }
-
     const inStockItems = wishlistItems.filter(item => item.inStock)
     const outOfStockItems = wishlistItems.filter(item => !item.inStock)
 
     return (
-        <div className='flex-1  md:p-6'>
-            {/* Page Header */}
-            <div className='mb-6 md:mb-8'>
-                <div className='bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 text-white'>
-                    <div className='flex items-center space-x-3 md:space-x-4 mb-3 md:mb-4'>
-                        <FontAwesomeIcon icon={faHeart} className='text-2xl md:text-3xl lg:text-4xl' />
-                        <div>
-                            <h1 className='text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 md:mb-2'>My Wishlist</h1>
-                            <p className='text-purple-100 text-sm md:text-base'>
-                                {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'} saved for later
-                            </p>
-                        </div>
-                    </div>
-
-                    {wishlistItems.length > 0 && (
-                        <div className='flex flex-col sm:flex-row gap-3 md:gap-4'>
-                            <button
-                                onClick={addAllToCart}
-                                disabled={inStockItems.length === 0}
-                                className={`flex items-center justify-center space-x-2 px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold transition-all duration-300 ${inStockItems.length > 0
-                                        ? 'bg-white text-purple-600 hover:bg-gray-100 shadow-lg'
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }`}
-                            >
-                                <FontAwesomeIcon icon={faShoppingCart} className='text-sm' />
-                                <span className='text-sm md:text-base'>Add All to Cart ({inStockItems.length})</span>
-                            </button>
-                            <button
-                                onClick={clearWishlist}
-                                className='flex items-center justify-center space-x-2 border-2 border-white text-white px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors duration-300'
-                            >
-                                <FontAwesomeIcon icon={faTrash} className='text-sm' />
-                                <span className='text-sm md:text-base'>Clear Wishlist</span>
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-
+        <div className='flex-1  md:p-6'>       
             {wishlistItems.length === 0 ? (
                 /* Empty Wishlist */
                 <div className='bg-white rounded-xl md:rounded-2xl shadow-lg p-6 md:p-8 lg:p-12 text-center'>

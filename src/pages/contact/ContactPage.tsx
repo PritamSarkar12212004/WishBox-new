@@ -70,21 +70,6 @@ function ContactPage() {
             <div className='lg:hidden fixed top-4 right-4 z-50'>
                
             </div>
-
-            {/* Hero Section */}
-            <div className='mb-8 mt-4 md:mt-0'>
-                <div className='bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 md:p-8 text-white text-center'>
-                    <div className='max-w-3xl mx-auto'>
-                        <FontAwesomeIcon icon={faEnvelope} className='text-3xl md:text-4xl mb-3 md:mb-4' />
-                        <h1 className='text-3xl md:text-4xl font-bold mb-3 md:mb-4'>Get in Touch</h1>
-                        <p className='text-purple-100 text-base md:text-lg'>
-                            We'd love to hear from you! Whether you have questions about our products, 
-                            need custom paper decorations, or just want to say hello.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8'>
                 {/* Contact Information - Hidden on mobile when menu is closed */}
                 <div className={`lg:col-span-1 ${mobileMenuOpen ? 'block' : 'hidden'} lg:block`}>

@@ -46,11 +46,6 @@ const HeaderCom = () => {
             path: "/support",
             icon: faHeadset
         },
-        {
-            title: "Wishlist",
-            path: "/wishlist",
-            icon: faHeartbeat
-        },
     ];
 
     return (
@@ -107,7 +102,7 @@ const HeaderCom = () => {
 
                             {/* Action Icons - hidden on mobile, visible on desktop */}
                             <div className="hidden md:flex items-center space-x-1 sm:space-x-2">
-                                <Link to="/login"
+                                <Link to="/profile"
                                     className="p-1.5 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-all duration-300 group relative"
                                 >
                                     <FontAwesomeIcon icon={faUser} className="text-base group-hover:scale-110 transition-transform duration-300" />

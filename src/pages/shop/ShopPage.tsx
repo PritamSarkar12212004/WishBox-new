@@ -170,28 +170,7 @@ function ShopPage() {
 
     return (
         <div className='flex-1  md:p-6'>
-            {/* Page Header */}
-            <div className='mb-6 md:mb-8'>
-                <div className='bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 rounded-2xl p-4 md:p-6 lg:p-8 text-white'>
-                    <h1 className='text-2xl md:text-3xl lg:text-4xl font-bold mb-2'>Festival Decorations</h1>
-                    <p className='text-orange-100 text-sm md:text-base lg:text-lg'>Discover beautiful paper decorations for all Indian festivals</p>
-                    <div className='flex items-center justify-between mt-4 md:mt-6'>
-                        <div className='flex items-center space-x-2 md:space-x-4'>
-                            <span className='bg-white/20 px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm'>
-                                {filteredProducts.length} Products
-                            </span>
-                            <span className='bg-white/20 px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm'>
-                                Festival Ready
-                            </span>
-                        </div>
-                        <div className='hidden md:flex items-center space-x-2'>
-                            <FontAwesomeIcon icon={faGem} className='text-sm' />
-                            <span className='text-sm'>Traditional & Modern</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+         
             {/* Mobile Filter Toggle */}
             {isMobile && (
                 <div className='mb-4'>
