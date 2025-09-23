@@ -13,6 +13,9 @@ import {
 import { userContext } from '../../utils/context/ContextProvider';
 import useOtpApi from '../../hooks/api/auth/useOtpApi';
 import useCreateProfile from '../../hooks/api/auth/useCreateProfile';
+import api from '../../utils/api/api';
+import setToken from '../../functions/Token/setToken';
+import TokenCon from '../../constants/tokens/TokenCon';
 
 function LoginPage() {
 
@@ -26,6 +29,7 @@ function LoginPage() {
     const [backotp, setBackotp] = useState<null | {
         otp: number | string,
         status: string
+        type: string
     }>(null)
 
     // State for phone number entry phase
@@ -84,7 +88,7 @@ function LoginPage() {
             inputRefs.current[index + 1].focus();
         }
 
-        if (newOtp.every(digit => digit !== '') && index === 3) {
+        if (newOtp.every(digit => digit !== '') && index === 4) {
             handleOtpSubmit();
         }
     };
@@ -107,29 +111,36 @@ function LoginPage() {
         }
     };
 
-    // Modified OTP submission to show profile setup
     const handleOtpSubmit = () => {
         setIsVerifying(true);
-
-        // Simulate OTP verification
-        setTimeout(() => {
-            setIsVerifying(false);
-            const enteredOtp = otp.join('');
-            if (enteredOtp == backotp?.otp) {
-                setIsVerified(true);
-                // Show profile setup after 2 seconds instead of redirecting
-                setTimeout(() => {
-                    setShowProfileSetup(true);
-                }, 2000);
+        setIsVerifying(false);
+        const enteredOtp = otp.join('');
+        if (enteredOtp == backotp?.otp) {
+            setIsVerified(true);
+            if (backotp?.type === "Register") {
+                setShowProfileSetup(true);
                 setauthReloader(!authReloader)
             } else {
-                alert("Invalid OTP. Please try again.");
-                setOtp(['', '', '', '']);
-                if (inputRefs.current[0]) {
-                    inputRefs.current[0].focus();
-                }
+                api.post("/user/login-profile", {
+                    payload: {
+                        phone: phoneNumber
+                    }
+                }).then(async (res) => {
+                    await setToken(TokenCon.Auth.isLogin, true);
+                    await setToken(TokenCon.Auth.userData, res?.data.data);
+                    setIsProfileLoading(false);
+                    setauthReloader(!authReloader);
+                }).catch((err) => {
+                    console.log(err)
+                })
             }
-        }, 1000);
+        } else {
+            alert("Invalid OTP. Please try again.");
+            setOtp(['', '', '', '']);
+            if (inputRefs.current[0]) {
+                inputRefs.current[0].focus();
+            }
+        }
     };
 
     const handleBackToPhone = () => {

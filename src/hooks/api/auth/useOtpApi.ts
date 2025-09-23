@@ -15,10 +15,10 @@ const useOtpApi = () => {
         },
       })
       .then((response) => {
-        console.log(response);
         setBackotp({
-          otp: response.data.data.data.otp,
+          otp: response.data.data.data.data.otp,
           status: response.data.status,
+          type: response.data.data.type,
         });
         setIsLoading(false);
         setShowSuccess(true);
